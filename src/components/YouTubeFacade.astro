@@ -1,0 +1,43 @@
+---
+// Intégration vidéo "légère" : affiche seulement la miniature tant que
+// personne ne clique. L'iframe YouTube (lourde) ne se charge qu'au clic,
+// ce qui préserve le temps de chargement de la page (LCP) — un facteur de
+// classement Google. C'est la même logique que la plupart des gros sites
+// médias utilisent pour leurs vidéos.
+interface Props {
+  videoId: string;
+  title: string;
+}
+const { videoId, title } = Astro.props;
+const thumbnail = `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`;
+---
+<div class="yt-facade" data-video-id={videoId} role="button" tabindex="0" aria-label={`Lire la vidéo : ${title}`}>
+  <img src={thumbnail} alt={title} loading="lazy" width="1280" height="720" />
+  <span class="play" aria-hidden="true">
+    <svg viewBox="0 0 68 48"><path d="M66.5 7.2A8.3 8.3 0 0 0 60.7 1.4C55.4 0 34 0 34 0S12.6 0 7.3 1.4A8.3 8.3 0 0 0 1.5 7.2 86.9 86.9 0 0 0 0 24a86.9 86.9 0 0 0 1.5 16.8 8.3 8.3 0 0 0 5.8 5.8C12.6 48 34 48 34 48s21.4 0 26.7-1.4a8.3 8.3 0 0 0 5.8-5.8A86.9 86.9 0 0 0 68 24a86.9 86.9 0 0 0-1.5-16.8Z" fill="#212121" fill-opacity=".8"/><path d="M45 24 27 14v20Z" fill="#fff"/></svg>
+  </span>
+</div>
+
+<script>
+  // Un seul petit script, chargé sur toutes les pages mais inactif tant
+  // qu'il n'y a pas de .yt-facade sur la page.
+  function activate(el: HTMLElement) {
+    const videoId = el.dataset.videoId;
+    const iframe = document.createElement('iframe');
+    iframe.src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1`;
+    iframe.title = el.getAttribute('aria-label') || 'Vidéo YouTube';
+    iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+    iframe.allowFullscreen = true;
+    el.innerHTML = '';
+    el.appendChild(iframe);
+  }
+  document.querySelectorAll<HTMLElement>('.yt-facade').forEach((el) => {
+    el.addEventListener('click', () => activate(el));
+    el.addEventListener('keydown', (e) => {
+      if ((e as KeyboardEvent).key === 'Enter' || (e as KeyboardEvent).key === ' ') {
+        e.preventDefault();
+        activate(el);
+      }
+    });
+  });
+</script>

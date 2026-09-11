@@ -1,0 +1,103 @@
+---
+import { getEntry } from 'astro:content';
+import BaseLayout from './BaseLayout.astro';
+import YouTubeFacade from '../components/YouTubeFacade.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  pubDate: Date;
+  updatedDate?: Date;
+  videoId?: string;
+  youtubeTitle?: string;
+  series: 'A' | 'B';
+  format?: 'Comparatif' | 'Tuto' | 'Avis' | 'Problème→solution';
+  containsAffiliateLinks: boolean;
+  relatedSlugs: string[];
+  ogImage?: string;
+}
+
+const {
+  title,
+  description,
+  pubDate,
+  updatedDate,
+  videoId,
+  youtubeTitle,
+  series,
+  format,
+  containsAffiliateLinks,
+  relatedSlugs,
+  ogImage,
+} = Astro.props;
+
+const dateFormatter = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+
+// Résout les articles liés (maillage interne) à partir de leurs slugs.
+const related = (
+  await Promise.all(relatedSlugs.map((slug) => getEntry('articles', slug)))
+).filter((entry) => entry !== undefined);
+
+const articleSchema: Record<string, unknown> = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: title,
+  description,
+  datePublished: pubDate.toISOString(),
+  dateModified: (updatedDate ?? pubDate).toISOString(),
+  author: { '@type': 'Person', name: 'Johan', url: 'https://le-levier.fr/a-propos' },
+  publisher: { '@type': 'Organization', name: 'Le Levier' },
+};
+
+if (videoId) {
+  articleSchema.video = {
+    '@type': 'VideoObject',
+    name: youtubeTitle ?? title,
+    description,
+    thumbnailUrl: `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`,
+    uploadDate: pubDate.toISOString(),
+    embedUrl: `https://www.youtube-nocookie.com/embed/${videoId}`,
+  };
+}
+---
+<BaseLayout title={`${title} — Le Levier`} description={description} ogImage={ogImage} structuredData={articleSchema}>
+  <div class="wrap">
+    <div class="col">
+      <p class="breadcrumb">
+        <a href="/">Accueil</a> / <a href="/articles">Articles</a> / <span>{title}</span>
+      </p>
+
+      {containsAffiliateLinks && (
+        <div class="disclosure">
+          <strong>Publicité — liens affiliés.</strong> Cet article contient des liens vers des produits que j'utilise réellement. S'ils débouchent sur un abonnement, je touche une commission, sans coût supplémentaire pour toi. Détail complet sur <a href="/comment-je-suis-remunere">comment je suis rémunéré</a>.
+        </div>
+      )}
+
+      <div class="article-meta">
+        <span>{format ?? 'Article'}</span>
+        <span>Série {series === 'A' ? 'A — piloter sa boîte' : 'B — investisseur'}</span>
+        <span>Publié le {dateFormatter.format(pubDate)}</span>
+        {updatedDate && <span>Mis à jour le {dateFormatter.format(updatedDate)}</span>}
+      </div>
+
+      <h1>{title}</h1>
+
+      {videoId && <YouTubeFacade videoId={videoId} title={youtubeTitle ?? title} />}
+
+      <article class="body-content">
+        <slot />
+      </article>
+
+      {related.length > 0 && (
+        <div class="related">
+          <h2>Pour aller plus loin</h2>
+          <ul class="body">
+            {related.map((entry) => entry && (
+              <li><a href={`/articles/${entry.slug}`}>{entry.data.title}</a></li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  </div>
+</BaseLayout>

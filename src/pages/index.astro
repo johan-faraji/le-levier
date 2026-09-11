@@ -1,0 +1,71 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const articles = (await getCollection('articles', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 6);
+---
+<BaseLayout
+  title="Le Levier — Piloter sa boîte avec de la data, sans coder"
+  description="Outils no-code, automatisation et gestion d'entreprise, testés et chiffrés avant d'être recommandés. Chaîne YouTube et site pour indépendants, TPE et petites agences."
+>
+  <div class="wrap">
+    <div class="col stack" style="padding: 56px 0 40px;">
+      <span class="eyebrow">Le Levier</span>
+      <h1>Piloter sa boîte avec de la data, sans coder.</h1>
+      <p style="font-size: 1.15rem; color: var(--ink-2); max-width: 56ch;">
+        Des outils no-code, des automatisations et des logiciels de gestion, testés sur une vraie activité et chiffrés avant d'être recommandés — pas de classement recopié depuis les pages des éditeurs.
+      </p>
+      <div style="display:flex; gap: 14px; flex-wrap: wrap; margin-top: 8px;">
+        <a href="/articles" style="font-family: var(--sans); font-weight: 600; padding: 10px 18px; background: var(--accent); color: var(--paper); border-radius: 4px; text-decoration: none;">Voir les articles</a>
+        <a href="https://www.youtube.com/@lelevier" rel="noopener" style="font-family: var(--sans); font-weight: 600; padding: 10px 18px; border: 1px solid var(--rule); border-radius: 4px; text-decoration: none; color: var(--ink);">S'abonner sur YouTube</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap" style="padding-bottom: 56px;">
+    <div class="col" style="max-width: 1000px;">
+      <h2 style="margin-bottom: 20px;">Derniers articles</h2>
+      {articles.length === 0 ? (
+        <p style="color: var(--ink-2);">Les premiers articles arrivent bientôt.</p>
+      ) : (
+        <div class="card-grid">
+          {articles.map((article) => (
+            <a class="card" href={`/articles/${article.slug}`}>
+              <span class="eyebrow">{article.data.format ?? 'Article'}</span>
+              <h3>{article.data.title}</h3>
+              <p>{article.data.description}</p>
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
+  </div>
+
+  <div class="wrap" style="padding-bottom: 72px;">
+    <div class="col" style="background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 28px;">
+      <h2 style="margin-bottom: 10px;">La newsletter</h2>
+      <p style="color: var(--ink-2); margin-bottom: 16px;">Un résultat chiffré par envoi, et le lien vers l'article. Rien d'autre.</p>
+      <!--
+        TODO : remplace ce formulaire par le code d'intégration fourni par
+        Kit (Paramètres → Formulaires → Intégrer). Kit te donne un <form>
+        prêt à coller ici — il suffit de remplacer tout le bloc <form>...</form>
+        ci-dessous par le sien.
+      -->
+      <form action="#" method="post" style="display:flex; gap:10px; flex-wrap: wrap;">
+        <input
+          type="email"
+          name="email_address"
+          placeholder="ton@email.fr"
+          required
+          style="flex:1; min-width:220px; padding:10px 12px; border:1px solid var(--rule); border-radius:4px; font-family: var(--sans); font-size:.95rem;"
+        />
+        <button
+          type="submit"
+          style="font-family: var(--sans); font-weight:600; padding:10px 18px; background: var(--accent); color: var(--paper); border:0; border-radius:4px; cursor:pointer;"
+        >S'inscrire</button>
+      </form>
+    </div>
+  </div>
+</BaseLayout>

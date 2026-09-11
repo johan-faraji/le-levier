@@ -1,0 +1,31 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const articles = (await getCollection('articles', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+---
+<BaseLayout
+  title="Tous les articles — Le Levier"
+  description="Comparatifs, tutoriels et avis sur les outils no-code, l'automatisation et la gestion d'entreprise, testés et chiffrés."
+>
+  <div class="wrap" style="padding: 48px 0;">
+    <div class="col" style="max-width: 1000px;">
+      <span class="eyebrow">Le Levier</span>
+      <h1 style="margin-bottom: 24px;">Tous les articles</h1>
+      {articles.length === 0 ? (
+        <p style="color: var(--ink-2);">Les premiers articles arrivent bientôt.</p>
+      ) : (
+        <div class="card-grid">
+          {articles.map((article) => (
+            <a class="card" href={`/articles/${article.slug}`}>
+              <span class="eyebrow">{article.data.format ?? 'Article'}</span>
+              <h3>{article.data.title}</h3>
+              <p>{article.data.description}</p>
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
+  </div>
+</BaseLayout>
