@@ -348,11 +348,14 @@ const { intro = true } = Astro.props;
   function model(st) {
     var cycles = st.poll ? Math.round(1440 / st.iv) * 30 : 0;
     var per = st.actions + st.plumb;
-    var runs = st.poll ? cycles : st.events;
+    // Make ne regroupe pas : chaque événement paie son déclencheur, en
+    // interrogation comme en webhook (mesuré : paquets de 10 = 10 passages à 4 op.).
+    // L'interrogation ajoute seulement les vérifications qui ne trouvent rien.
+    var idle = st.poll ? Math.max(0, cycles - st.events) : 0;
     return {
       cycles: cycles,
       zapier: { units: st.events * st.actions, fixed: 0 },
-      make: { units: runs + st.events * per, fixed: st.poll ? cycles : 0 },
+      make: { units: idle + st.events * (1 + per), fixed: idle },
       n8n: { units: st.poll ? Math.min(st.events, cycles) : st.events, fixed: 0 }
     };
   }
@@ -418,10 +421,10 @@ const { intro = true } = Astro.props;
       ? META[winner.k].label + " est le moins cher pour ce scénario"
       : "Volume au-delà des grilles publiées";
     $("cmpVBody").textContent = st.poll
-      ? (st.events > m.cycles
-        ? "Tu reçois plus d'un événement par cycle (" + nf(st.events) + " pour " + nf(m.cycles) + " vérifications). L'interrogation est ici le bon choix : elle amortit le coût du déclencheur chez Make et plafonne les exécutions chez n8n. Passer au webhook ferait monter la facture."
-        : "Tu reçois moins d'un événement par cycle (" + nf(st.events) + " pour " + nf(m.cycles) + " vérifications). Un déclencheur instantané supprimerait " + nf(m.make.fixed) + " opérations de veille chez Make sans rien changer chez n8n — teste le mode Instantané.")
-      : "En instantané, rien ne tourne entre deux événements : Make n'a plus de part fixe, mais chaque événement paie son propre déclencheur, et n8n perd son plafond. Au-delà d'un événement par cycle, l'interrogation redevient plus économique.";
+      ? (m.make.fixed > 0
+        ? "Chez Make, " + nf(m.make.fixed) + " vérifications par mois ne trouvent rien et sont facturées quand même : si ta source sait prévenir, le mode Instantané les supprime. Chez n8n, garde l'interrogation : elle regroupe les événements d'un même cycle."
+        : "Au moins un événement par cycle : Make n'a plus de vérification à vide, l'Instantané ne changerait rien pour lui. Chez n8n, l'interrogation regroupe tes événements et plafonne la facture à " + nf(m.cycles) + " exécutions.")
+      : "En instantané, rien ne tourne entre deux événements : Make n'a plus de veille à payer, c'est son mode le plus économique. n8n, lui, perd le regroupement : chaque événement devient une exécution.";
 
     drawChart(st);
   }

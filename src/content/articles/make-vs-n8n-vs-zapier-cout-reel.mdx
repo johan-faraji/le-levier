@@ -78,20 +78,18 @@ Pour mon scénario à trois actions, en facturation annuelle :
 |---|---|---|---|
 | 50 à 200 | 214 €/an | **94 €/an** | 240 €/an |
 | 1 000 | 953 €/an | **94 €/an** | 240 €/an |
-| 5 000 | 2 025 €/an | **304 €/an** | 600 €/an |
-| 20 000 | 5 238 €/an | 1 039 €/an | **600 €/an** |
+| 5 000 | 2 025 €/an | **168 €/an** | 600 €/an |
+| 20 000 | 5 238 €/an | **577 €/an** | 600 €/an |
 
-n8n passe devant Make vers **19 500 déclenchements par mois**. Zapier ne gagne sur aucune ligne.
+n8n passe devant Make **au-delà de 20 000 déclenchements par mois** : Make grimpe avec ton volume, n8n reste à 600 €/an. Zapier ne gagne sur aucune ligne.
 
-## Webhook ou interrogation : le seuil qui décide
+## Webhook ou interrogation : ça dépend de l'outil
 
 Un webhook, c'est un système qui permet à la source de prévenir l'outil. Ça évite que l'outil écoute la source en continu, même quand il ne se passe rien. Pour faire simple, dans le cadre des automatisations, ça permet de déclencher le processus **seulement** s'il se passe quelque chose. Ça change la facture, mais pas dans le même sens partout :
 
-- **Chez Make**, on supprime les coûts de veille (les 796 opérations qui n'ont servi à rien). En contrepartie, chaque lead paie son propre déclencheur : 4 opérations au lieu de 3.
-- **Chez n8n**, tu perds le regroupement : dix leads arrivés ensemble redeviennent dix exécutions.
+- **Chez Make**, on supprime les coûts de veille (les 796 opérations qui n'ont servi à rien). Chaque lead coûte toujours 4 opérations, comme en interrogation : Make ne regroupe pas les leads. **Le webhook gagne donc toujours.**
+- **Chez n8n**, tu perds le regroupement : dix leads arrivés ensemble redeviennent dix exécutions. Et comme les vérifications à vide ne coûtent rien, **l'interrogation gagne toujours**, si tu peux te permettre d'attendre le cycle suivant.
 - **Chez Zapier**, rien ne change au prix, seulement la latence.
-
-Pour les deux premiers, la règle est simple : **si tu as davantage d'événements que de cycles, l'interrogation gagne**. Sinon, c'est le webhook. Dans mon cas, à 15 minutes d'intervalle, il faudrait plus de 2 880 leads par mois pour que l'interrogation devienne plus rentable que le webhook. Autant dire un volume très conséquent.
 
 On peut également relever deux leviers importants.
 
@@ -125,7 +123,7 @@ Côté licence, tu peux faire tourner des automatisations pour des clients payan
 
 N'hésite pas à jeter un œil au comparateur que j'ai mis à ta disposition plus haut, ou [sur sa page dédiée](/outils/calculateur-automatisation).
 
-Et bien sûr, le grand gagnant niveau prix, c'est n8n en auto-hébergé, mais c'est à toi de voir si tu es prêt à le mettre en place.
+Et bien sûr, le moins cher sur le papier, c'est n8n en auto-hébergé, mais c'est à toi de voir si tu es prêt à le mettre en place.
 
 ## Ce que ce test ne dit pas
 
