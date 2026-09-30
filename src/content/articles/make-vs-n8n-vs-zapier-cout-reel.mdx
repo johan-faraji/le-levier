@@ -34,33 +34,41 @@ Le coût n'est pas proportionnel au volume, c'est un escalier : tant que tu tien
 
 ## Ils ne comptent pas la même chose
 
-C'est toute l'explication de l'écart.
+C'est là que l'écart se joue !
 
-- **Zapier facture des tâches** : une par action réussie. Le déclencheur et les outils internes (filtres, mise en forme, délais) sont gratuits.
-- **Make facture des opérations** : une par module exécuté, déclencheur compris.
-- **n8n facture des exécutions** : une par passage du workflow, qu'il ait 4 étapes ou 40.
+- **Zapier facture des tâches** : on est facturé pour chaque action réussie. À l'inverse, le déclencheur, donc le premier module de l'automatisation, et les outils internes sont gratuits (filtres, mise en forme, délais).
+- **Make facture des opérations** : pour chaque module exécuté, quel qu'il soit, une opération nous est décomptée (y compris pour le déclencheur).
+- **n8n facture des exécutions** : ici, c'est complètement différent. Notre workflow, qu'il comporte 1 étape ou 67, ne consommera qu'une exécution.
 
-Mon scénario : un formulaire arrive dans Google Sheets, puis fiche HubSpot, email Gmail, notification Slack. Zapier a consommé **150 tâches** pour 50 leads, trois par lead, sans surprise. Les deux autres, beaucoup moins sages.
+Mon scénario : un formulaire arrive dans Google Sheets, puis fiche HubSpot, email Gmail, notification Slack. Tout ça avec un batch toutes les 15 minutes. En gros, les automatisations écoutaient tous les quarts d'heure le fichier Google Sheets pour savoir si quelque chose avait changé.
+
+- **Zapier** a consommé **150 tâches** pour 50 leads, trois par lead (le module Google Sheets n'est pas décompté, d'où les 3 tâches par lead).
+- **Make** a consommé **1 000 opérations** pour 50 leads.
+- **n8n** a consommé **23 exécutions** pour 50 leads.
+
+Comme on peut le voir, les différences sont flagrantes. Creusons le sujet pour comprendre ce qu'il s'est passé.
 
 ## Les 796 opérations que Make m'a facturées pour ne rien faire
 
-Make a épuisé ses **1 000 opérations** gratuites. Dans l'historique : **847 lignes** pour 50 déclenchements.
+Ces 1 000 opérations, c'est tout le palier gratuit de Make. Dans l'historique : **847 lignes** pour 50 déclenchements.
 
 51 lignes à quatre opérations : mes leads, plus un test de montage. Et **796 lignes à une seule opération** : le scénario s'est réveillé, a regardé la feuille, n'a rien trouvé, et a été facturé quand même.
 
 C'est la règle de Make : le déclencheur coûte son opération à chaque vérification, même les mains vides. Toutes les 15 minutes, ça fait **2 880 opérations par mois rien que pour écouter**. Zapier ne facture pas la vérification, n8n non plus. **Make est le seul des trois qui te fait payer l'attente.**
 
-Sur une année, ça ne coûte qu'environ trois euros : le palier à 10 000 opérations absorbe la veille sans broncher. **Mais ça tue le palier gratuit**, dépassé presque trois fois avant ton premier client.
+Sur une année complète, ça ne coûte qu'environ trois euros : le palier à 10 000 opérations absorbe la veille sans broncher. Ce qui est dommage, par contre, c'est que **ça tue le palier gratuit**, dépassé presque trois fois avant ton premier client. Sur un scénario comme celui-ci, il suffirait de réduire la fréquence du batch : à une vérification par heure, la veille tombe à 720 opérations par mois, et le gratuit tient jusqu'à environ 90 leads par mois.
 
 Les deux autres ne font pas mieux sur le gratuit : Zapier plafonne son plan gratuit à deux étapes (le scénario n'y tourne pas), et n8n cloud n'a qu'un essai limité dans le temps.
 
-## Pourquoi n8n n'a consommé que 23 exécutions pour 50 leads
+## Pourquoi n8n n'a consommé que 23 exécutions pour 50 leads ?
+
+Une chose que je n'ai pas évoquée : lors de mes tests, j'ai envoyé les 20 premiers leads de manière séquentielle (un toutes les 15 minutes) et les 30 derniers en 3 vagues de 10. Je voulais vérifier comment les différents logiciels allaient facturer des paquets de données.
 
 Mes 20 leads envoyés un par un ont donné 20 exécutions. Mes 30 leads envoyés par paquets de dix ? **Trois exécutions.** Une par paquet.
 
-Un cycle de vérification, c'est une exécution, qu'il ramène un élément ou dix. **n8n ne facture pas tes leads, il facture ton horloge.**
+Un cycle de vérification, c'est une exécution, qu'il ramène un élément ou dix. **n8n ne facture pas tes leads, il facture ton horloge.** C'est un très bon levier si tu veux réduire les coûts : il suffit de réduire drastiquement la fréquence du batch (à condition que la récolte des données ne soit pas urgente).
 
-À 15 minutes d'intervalle, un mois compte 2 880 cycles. n8n ne peut donc pas dépasser 2 880 exécutions par mois, que tu traites cent leads ou vingt mille. C'est le seul des trois dont la facture ne suit pas ta croissance.
+À 15 minutes d'intervalle, un mois compte 2 880 cycles. n8n ne peut donc pas dépasser 2 880 exécutions par mois, que tu traites cent leads ou vingt mille. C'est le seul des trois dont la facture ne suit pas ta croissance. Bon point.
 
 ## Ce que ça donne selon ton volume
 
@@ -77,17 +85,21 @@ n8n passe devant Make vers **19 500 déclenchements par mois**. Zapier ne gagne 
 
 ## Webhook ou interrogation : le seuil qui décide
 
-Un webhook, c'est la source qui prévient l'outil au lieu que l'outil aille vérifier. Ça change la facture, mais pas dans le même sens partout :
+Un webhook, c'est un système qui permet à la source de prévenir l'outil. Ça évite que l'outil écoute la source en continu, même quand il ne se passe rien. Pour faire simple, dans le cadre des automatisations, ça permet de déclencher le processus **seulement** s'il se passe quelque chose. Ça change la facture, mais pas dans le même sens partout :
 
-- **Chez Make**, plus de veille facturée, mais chaque événement paie son déclencheur (4 opérations au lieu de 3).
+- **Chez Make**, on supprime les coûts de veille (les 796 opérations qui n'ont servi à rien). En contrepartie, chaque lead paie son propre déclencheur : 4 opérations au lieu de 3.
 - **Chez n8n**, tu perds le regroupement : dix leads arrivés ensemble redeviennent dix exécutions.
 - **Chez Zapier**, rien ne change au prix, seulement la latence.
 
-La règle est la même pour les deux premiers : **compare ton nombre d'événements au nombre de cycles** (2 880 par mois à 15 minutes). Moins d'un événement par cycle : le webhook gagne. Plus : l'interrogation gagne.
+Pour les deux premiers, la règle est simple : **si tu as davantage d'événements que de cycles, l'interrogation gagne**. Sinon, c'est le webhook. Dans mon cas, à 15 minutes d'intervalle, il faudrait plus de 2 880 leads par mois pour que l'interrogation devienne plus rentable que le webhook. Autant dire un volume très conséquent.
 
-Deux leviers en plus. Chez Make, le webhook débloque le gratuit jusqu'à 250 événements par mois. Et c'est l'intervalle qui fait le plus bouger la facture : à une minute, la veille Make passe à 43 200 opérations, soit 48 € par mois au lieu de 7,87 €.
+On peut également relever deux leviers importants.
 
-Seules les sources capables de prévenir le permettent : formulaires, Stripe, Shopify (« instantané » dans Make). Une feuille de calcul, une boîte mail ou un dossier t'imposent l'interrogation.
+Le premier : chez Make, le webhook débloque le gratuit jusqu'à 250 événements par mois (dans le cas de mon scénario). 1 000 opérations gratuites ÷ 4 opérations par lead = **250 leads gratuits** !
+
+Le second : c'est l'intervalle qui fait le plus bouger la facture. À une minute, la veille Make passe à 43 200 opérations, soit 48 € par mois au lieu de 7,87 €.
+
+Bien entendu, il faut garder en tête que seules les sources capables de « prévenir » permettent d'utiliser un webhook : formulaires, Stripe, Shopify (« instantané » dans Make). Une feuille de calcul, une boîte mail ou un dossier t'imposent l'interrogation.
 
 ## Et n8n auto-hébergé ? Environ 85 € par an, plus ton temps
 
@@ -103,13 +115,17 @@ Le vrai coût, c'est ton temps : une à deux heures par mois de maintenance, et 
 
 Côté licence, tu peux faire tourner des automatisations pour des clients payants **si c'est toi qui construis et contrôles les workflows**. Ce qui est interdit : héberger n8n pour que tes clients y créent leurs propres scénarios.
 
-## Quel outil choisir
+## Quel outil choisir ?
 
-**Jusqu'à ~20 000 déclenchements par mois : Make.** Paie dès le premier jour, le gratuit ne tient pas. Si ta source sait envoyer un webhook, utilise-le.
+**Jusqu'à ~20 000 déclenchements par mois : Make.** Si ta source sait envoyer un webhook, utilise-le.
 
 **Au-delà, ou si tes événements arrivent par vagues : n8n cloud.** Et à très gros volume, l'auto-hébergé ramène le coût à celui du serveur.
 
 **Zapier : jamais pour le prix.** Mais son catalogue de connecteurs est le plus complet et son interface ne demande rien à apprendre. Payer plus pour ne pas y réfléchir se défend quand ton temps vaut plus que ça.
+
+N'hésite pas à jeter un œil au comparateur que j'ai mis à ta disposition plus haut, ou [sur sa page dédiée](/outils/calculateur-automatisation).
+
+Et bien sûr, le grand gagnant niveau prix, c'est n8n en auto-hébergé, mais c'est à toi de voir si tu es prêt à le mettre en place.
 
 ## Ce que ce test ne dit pas
 
