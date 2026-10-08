@@ -7,19 +7,19 @@ const articles = (await getCollection('articles', ({ data }) => !data.draft))
   .slice(0, 6);
 ---
 <BaseLayout
-  title="Le Levier — Piloter sa boîte avec de la data, sans coder"
-  description="Outils no-code, automatisation et gestion d'entreprise, testés et chiffrés avant d'être recommandés. Chaîne YouTube et site pour indépendants, TPE et petites agences."
+  title="Le Levier — L'économie et la géopolitique expliquées simplement"
+  description="Chaque semaine, un chiffre ou un événement économique, financier ou géopolitique décrypté sans jargon — pour comprendre comment fonctionne ce monde, même en partant de zéro."
 >
   <div class="wrap">
     <div class="col stack" style="padding: 56px 0 40px;">
       <span class="eyebrow">Le Levier</span>
-      <h1>Piloter sa boîte avec de la data, sans coder.</h1>
+      <h1>Comprendre comment fonctionne ce monde, sans bagage économique.</h1>
       <p style="font-size: 1.15rem; color: var(--ink-2); max-width: 56ch;">
-        Des outils no-code, des automatisations et des logiciels de gestion, testés sur une vraie activité et chiffrés avant d'être recommandés — pas de classement recopié depuis les pages des éditeurs.
+        Chaque sujet part d'un chiffre ou d'un fait précis — une dette, une décision de banque centrale, un accord commercial — pour expliquer le mécanisme derrière, en partant du principe que tu n'as jamais ouvert un livre d'économie.
       </p>
       <div style="display:flex; gap: 14px; flex-wrap: wrap; margin-top: 8px;">
         <a href="/articles" style="font-family: var(--sans); font-weight: 600; padding: 10px 18px; background: var(--accent); color: var(--paper); border-radius: 4px; text-decoration: none;">Voir les articles</a>
-        <a href="https://www.youtube.com/@le-levier" rel="noopener" style="font-family: var(--sans); font-weight: 600; padding: 10px 18px; border: 1px solid var(--rule); border-radius: 4px; text-decoration: none; color: var(--ink);">S'abonner sur YouTube</a>
+        <a href="https://www.youtube.com/@lelevier" rel="noopener" style="font-family: var(--sans); font-weight: 600; padding: 10px 18px; border: 1px solid var(--rule); border-radius: 4px; text-decoration: none; color: var(--ink);">S'abonner sur YouTube</a>
       </div>
     </div>
   </div>
@@ -46,7 +46,7 @@ const articles = (await getCollection('articles', ({ data }) => !data.draft))
   <div class="wrap" style="padding-bottom: 72px;">
     <div class="col" style="background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 28px;">
       <h2 style="margin-bottom: 10px;">La newsletter</h2>
-      <p style="color: var(--ink-2); margin-bottom: 16px;">Un résultat chiffré par envoi, et le lien vers l'article. Rien d'autre.</p>
+      <p style="color: var(--ink-2); margin-bottom: 16px;">Un chiffre marquant par semaine, expliqué en trois phrases, et le lien vers la vidéo ou l'article. Rien d'autre.</p>
       <!--
         TODO : remplace ce formulaire par le code d'intégration fourni par
         Kit (Paramètres → Formulaires → Intégrer). Kit te donne un <form>

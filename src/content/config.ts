@@ -31,21 +31,30 @@ const articles = defineCollection({
       // sans encart vidéo, et il suffit d'ajouter ce champ plus tard.
       videoId: z.string().optional(),
 
-      // Série éditoriale — voir le plan de lancement.
-      series: z.enum(['A', 'B']).default('A'),
+      // Thème éditorial — les trois piliers du Levier, plus une case pour les
+      // sujets qui mélangent les trois.
+      theme: z.enum(['Économie', 'Géopolitique', 'Finance', 'Transversal']).default('Économie'),
 
-      // Format éditorial, pour la rotation à 4 semaines.
-      format: z.enum(['Comparatif', 'Tuto', 'Avis', 'Problème→solution']).optional(),
+      // Format éditorial, pour la rotation.
+      // - Décryptage : un mécanisme expliqué pas à pas
+      // - Actu commentée : un événement récent remis en perspective
+      // - Chiffre du moment : toute la vidéo/l'article part d'une seule donnée
+      // - Les bases : un concept 101, pour quelqu'un qui part de zéro
+      format: z.enum(['Décryptage', 'Actu commentée', 'Chiffre du moment', 'Les bases']).optional(),
+
+      // Le chiffre qui sert de point d'appui à l'article (ex: "312 Mds $").
+      // C'est la place de "l'approche data" dans le projet : un chiffre qui
+      // ancre le propos, jamais un tableau ou du code affiché à l'écran.
+      // Laisser vide si l'article ne s'articule pas autour d'un chiffre précis.
+      keyStat: z.string().optional(),
+
+      // Une phrase qui explique ce que ce chiffre veut dire — affichée juste
+      // sous le chiffre, dans l'encart en haut de l'article.
+      keyStatCaption: z.string().optional(),
 
       // Image utilisée pour les partages (réseaux sociaux) et l'aperçu Google.
       // Optionnelle : une image par défaut est utilisée si absente.
       ogImage: image().optional(),
-
-      // Passe à true pour un produit dont tu es affilié dans cet article :
-      // affiche automatiquement la mention légale "contient des liens
-      // affiliés" en haut de la page (obligatoire dès qu'un lien affilié
-      // est présent — voir la loi du 9 juin 2023 citée dans le plan).
-      containsAffiliateLinks: z.boolean().default(true),
 
       // Articles liés (slugs), pour le maillage interne — voir le README.
       relatedSlugs: z.array(z.string()).default([]),

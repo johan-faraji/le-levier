@@ -10,12 +10,12 @@ interface Props {
   updatedDate?: Date;
   videoId?: string;
   youtubeTitle?: string;
-  series: 'A' | 'B';
-  format?: 'Comparatif' | 'Tuto' | 'Avis' | 'Problème→solution';
-  containsAffiliateLinks: boolean;
+  theme: 'Économie' | 'Géopolitique' | 'Finance' | 'Transversal';
+  format?: 'Décryptage' | 'Actu commentée' | 'Chiffre du moment' | 'Les bases';
+  keyStat?: string;
+  keyStatCaption?: string;
   relatedSlugs: string[];
   ogImage?: string;
-  headings?: { depth: number; slug: string; text: string }[];
 }
 
 const {
@@ -25,17 +25,13 @@ const {
   updatedDate,
   videoId,
   youtubeTitle,
-  series,
+  theme,
   format,
-  containsAffiliateLinks,
+  keyStat,
+  keyStatCaption,
   relatedSlugs,
   ogImage,
-  headings = [],
 } = Astro.props;
-
-// Sommaire : les H2 de l'article, affiché seulement s'il y a de quoi naviguer.
-const toc = headings.filter((h) => h.depth === 2);
-const showToc = toc.length >= 3;
 
 const dateFormatter = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
 
@@ -67,46 +63,30 @@ if (videoId) {
 }
 ---
 <BaseLayout title={`${title} — Le Levier`} description={description} ogImage={ogImage} structuredData={articleSchema}>
-  <div class="wrap article-page">
-    <div class="article-grid">
-    {showToc && (
-      <aside class="toc-side" aria-label="Sommaire">
-        <p class="toc-title">Sommaire</p>
-        <ol class="toc-list">
-          {toc.map((h) => <li><a href={`#${h.slug}`}>{h.text}</a></li>)}
-        </ol>
-      </aside>
-    )}
+  <div class="wrap">
     <div class="col">
       <p class="breadcrumb">
         <a href="/">Accueil</a> / <a href="/articles">Articles</a> / <span>{title}</span>
       </p>
 
-      {containsAffiliateLinks && (
-        <div class="disclosure">
-          <strong>Publicité — liens affiliés.</strong> Cet article contient des liens vers des produits que j'utilise réellement. S'ils débouchent sur un abonnement, je touche une commission, sans coût supplémentaire pour toi. Détail complet sur <a href="/comment-je-suis-remunere">comment je suis rémunéré</a>.
-        </div>
-      )}
-
       <div class="article-meta">
         <span>{format ?? 'Article'}</span>
-        <span>Série {series === 'A' ? 'A — piloter sa boîte' : 'B — investisseur'}</span>
+        <span>{theme}</span>
         <span>Publié le {dateFormatter.format(pubDate)}</span>
         {updatedDate && <span>Mis à jour le {dateFormatter.format(updatedDate)}</span>}
       </div>
 
       <h1>{title}</h1>
 
-      {videoId && <YouTubeFacade videoId={videoId} title={youtubeTitle ?? title} />}
-
-      {showToc && (
-        <details class="toc-mobile">
-          <summary>Sommaire</summary>
-          <ol class="toc-list">
-            {toc.map((h) => <li><a href={`#${h.slug}`}>{h.text}</a></li>)}
-          </ol>
-        </details>
+      {keyStat && (
+        <div class="key-stat">
+          <span class="key-stat-label">Le chiffre</span>
+          <span class="key-stat-value">{keyStat}</span>
+          {keyStatCaption && <p class="key-stat-caption">{keyStatCaption}</p>}
+        </div>
       )}
+
+      {videoId && <YouTubeFacade videoId={videoId} title={youtubeTitle ?? title} />}
 
       <article class="body-content">
         <slot />
@@ -123,46 +103,5 @@ if (videoId) {
         </div>
       )}
     </div>
-    </div>
   </div>
 </BaseLayout>
-
-<script>
-  // Sommaire latéral : surligne la section en cours de lecture, et s'efface
-  // quand un élément pleine largeur (le comparateur) passe dessous.
-  const side = document.querySelector<HTMLElement>('.toc-side');
-  if (side) {
-    const links = new Map(
-      [...side.querySelectorAll<HTMLAnchorElement>('a')].map((a) => [decodeURIComponent(a.hash.slice(1)), a]),
-    );
-    const sections = [...document.querySelectorAll<HTMLElement>('article.body-content h2[id]')];
-    const setActive = () => {
-      let current = sections[0];
-      for (const h of sections) if (h.getBoundingClientRect().top < window.innerHeight * 0.3) current = h;
-      // en bas de page, les dernières sections ne remontent jamais assez haut
-      const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
-      if (atBottom) current = sections[sections.length - 1];
-      links.forEach((a, id) => a.toggleAttribute('aria-current', id === current?.id));
-    };
-    const wide = [...document.querySelectorAll<HTMLElement>('.cmp')];
-    const update = () => {
-      setActive();
-      const t = side.getBoundingClientRect();
-      const overlaps = wide.some((el) => {
-        const r = el.getBoundingClientRect();
-        return r.top < t.bottom && r.bottom > t.top;
-      });
-      side.classList.toggle('is-hidden', overlaps);
-    };
-    update();
-    window.addEventListener('scroll', update, { passive: true });
-    window.addEventListener('resize', update);
-  }
-
-  // Sommaire mobile : se referme quand on choisit une section.
-  document.querySelectorAll<HTMLDetailsElement>('.toc-mobile').forEach((d) => {
-    d.addEventListener('click', (e) => {
-      if ((e.target as HTMLElement).closest('a')) d.open = false;
-    });
-  });
-</script>
