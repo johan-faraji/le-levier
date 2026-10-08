@@ -6,9 +6,9 @@ l'utiliser sans avoir besoin de coder.
 ## Comment ajouter un article
 
 1. Va dans le dossier `src/content/articles/`.
-2. Copie un des deux fichiers existants (`automatiser-facturation-sans-code.md`
-   ou `cout-reel-compte-pro.md`) et renomme la copie — le nom du fichier
-   devient l'adresse de la page (ex : `mon-nouvel-article.md` donne
+2. Copie un des deux fichiers existants (`pourquoi-le-dollar-reste-roi.md`
+   ou `inflation-expliquee-simplement.md`) et renomme la copie — le nom du
+   fichier devient l'adresse de la page (ex : `mon-nouvel-article.md` donne
    `le-levier.fr/articles/mon-nouvel-article`).
 3. En haut du fichier, entre les deux lignes `---`, remplis les champs :
    - `title` : le titre affiché sur la page et dans Google.
@@ -19,10 +19,15 @@ l'utiliser sans avoir besoin de coder.
      vidéo (ex : pour `youtube.com/watch?v=Ab12Cd34`, c'est `Ab12Cd34`).
      Laisse ce champ absent tant que la vidéo n'est pas en ligne : l'article
      se publie sans encart vidéo.
-   - `series` : `A` (piloter sa boîte) ou `B` (investisseur).
-   - `format` : `Comparatif`, `Tuto`, `Avis` ou `Problème→solution`.
-   - `containsAffiliateLinks` : `true` si l'article contient un lien affilié
-     (ça affiche automatiquement la mention légale en haut de la page).
+   - `theme` : `Économie`, `Géopolitique`, `Finance`, ou `Transversal` si le
+     sujet mélange plusieurs de ces thèmes.
+   - `format` : `Décryptage`, `Actu commentée`, `Chiffre du moment` ou `Les bases`.
+   - `keyStat` et `keyStatCaption` : le chiffre qui sert de point d'appui à
+     l'article (ex : `"58 %"`), et la phrase qui explique ce qu'il veut dire.
+     Ça s'affiche dans un encart juste sous le titre. Laisse les deux champs
+     absents si l'article ne s'articule pas autour d'un chiffre précis —
+     c'est la seule place pour une donnée isolée, le reste du texte doit
+     rester écrit comme on parle.
    - `relatedSlugs` : les noms de fichiers (sans `.md`) des articles à
      suggérer en bas de page.
    - `draft` : mets `true` tant que l'article n'est pas prêt (il reste invisible
@@ -77,10 +82,11 @@ informations avant la mise en ligne publique :
 
 - `src/pages/mentions-legales.astro` — raison sociale exacte, SIRET, adresse
   du siège de la SAS (à faire valider par le comptable).
-- `src/pages/a-propos.astro` — ta présentation.
 - Les deux articles d'exemple dans `src/content/articles/` sont des
   gabarits (`draft: true`, donc invisibles sur le site) — à garder comme
-  modèle de structure, pas à publier tels quels.
+  modèle de structure, pas à publier tels quels. Ils contiennent chacun
+  plusieurs `[TODO]` à remplacer par tes chiffres vérifiés une fois le
+  sujet travaillé.
 - Le formulaire de newsletter sur la page d'accueil (`src/pages/index.astro`)
   est un formulaire vide : une fois ton compte Kit créé, remplace-le par le
   code d'intégration que Kit te fournit (Paramètres → Formulaires → Intégrer).
@@ -102,5 +108,5 @@ informations avant la mise en ligne publique :
   bon pour le classement Google, bon pour l'expérience de lecture.
 - **Maillage interne** : le champ `relatedSlugs` de chaque article affiche
   automatiquement des liens vers les articles liés en bas de page.
-- **Mention légale "publicité"** : affichée automatiquement en haut de tout
-  article dont `containsAffiliateLinks` est à `true`.
+- **Encart "chiffre qui compte"** : affiché automatiquement sous le titre
+  dès que les champs `keyStat` et `keyStatCaption` sont renseignés.

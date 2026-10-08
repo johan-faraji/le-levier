@@ -10,9 +10,10 @@ interface Props {
   updatedDate?: Date;
   videoId?: string;
   youtubeTitle?: string;
-  series: 'A' | 'B';
-  format?: 'Comparatif' | 'Tuto' | 'Avis' | 'Problème→solution';
-  containsAffiliateLinks: boolean;
+  theme: 'Économie' | 'Géopolitique' | 'Finance' | 'Transversal';
+  format?: 'Décryptage' | 'Actu commentée' | 'Chiffre du moment' | 'Les bases';
+  keyStat?: string;
+  keyStatCaption?: string;
   relatedSlugs: string[];
   ogImage?: string;
   headings?: { depth: number; slug: string; text: string }[];
@@ -25,9 +26,10 @@ const {
   updatedDate,
   videoId,
   youtubeTitle,
-  series,
+  theme,
   format,
-  containsAffiliateLinks,
+  keyStat,
+  keyStatCaption,
   relatedSlugs,
   ogImage,
   headings = [],
@@ -82,20 +84,22 @@ if (videoId) {
         <a href="/">Accueil</a> / <a href="/articles">Articles</a> / <span>{title}</span>
       </p>
 
-      {containsAffiliateLinks && (
-        <div class="disclosure">
-          <strong>Publicité — liens affiliés.</strong> Cet article contient des liens vers des produits que j'utilise réellement. S'ils débouchent sur un abonnement, je touche une commission, sans coût supplémentaire pour toi. Détail complet sur <a href="/comment-je-suis-remunere">comment je suis rémunéré</a>.
-        </div>
-      )}
-
       <div class="article-meta">
         <span>{format ?? 'Article'}</span>
-        <span>Série {series === 'A' ? 'A — piloter sa boîte' : 'B — investisseur'}</span>
+        <span>{theme}</span>
         <span>Publié le {dateFormatter.format(pubDate)}</span>
         {updatedDate && <span>Mis à jour le {dateFormatter.format(updatedDate)}</span>}
       </div>
 
       <h1>{title}</h1>
+
+      {keyStat && (
+        <div class="key-stat">
+          <span class="key-stat-label">Le chiffre</span>
+          <span class="key-stat-value">{keyStat}</span>
+          {keyStatCaption && <p class="key-stat-caption">{keyStatCaption}</p>}
+        </div>
+      )}
 
       {videoId && <YouTubeFacade videoId={videoId} title={youtubeTitle ?? title} />}
 
@@ -139,7 +143,6 @@ if (videoId) {
     const setActive = () => {
       let current = sections[0];
       for (const h of sections) if (h.getBoundingClientRect().top < window.innerHeight * 0.3) current = h;
-      // en bas de page, les dernières sections ne remontent jamais assez haut
       const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
       if (atBottom) current = sections[sections.length - 1];
       links.forEach((a, id) => a.toggleAttribute('aria-current', id === current?.id));
@@ -159,10 +162,10 @@ if (videoId) {
     window.addEventListener('resize', update);
   }
 
-  // Sommaire mobile : se referme quand on choisit une section.
   document.querySelectorAll<HTMLDetailsElement>('.toc-mobile').forEach((d) => {
     d.addEventListener('click', (e) => {
       if ((e.target as HTMLElement).closest('a')) d.open = false;
     });
   });
 </script>
+EOF
