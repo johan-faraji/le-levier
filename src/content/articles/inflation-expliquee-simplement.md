@@ -1,5 +1,5 @@
 ---
-title: "L'inflation, c'est quoi exactement ?
+title: "L'inflation, c'est quoi exactement ?"
 youtubeTitle: "On t'a mal expliqué l'inflation"
 description: "L'inflation n'est pas qu'une hausse des prix : c'est pour ça que les banques centrales en visent une cible précise, plutôt que zéro. Explication simple, à partir d'un seul chiffre."
 targetKeyword: "inflation définition expliquée simplement"
