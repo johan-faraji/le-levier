@@ -95,9 +95,9 @@ Plusieurs banques centrales (BCE, FED, BoE, etc.), qui ont notamment pour rôle 
 
 Vous trouverez la communication officielle de chaque banque centrale ci-dessous :
 
-[La stratégie de la Banque Centrale Européenne](https://www.ecb.europa.eu/mopo/strategy/html/index.fr.html)
-[La stratégie de la Réserve Fédérale Américaine](https://www.federalreserve.gov/monetarypolicy/files/FOMC_LongerRunGoals.pdf)
-[La stratégie de la Banque d'Angleterre](https://www.bankofengland.co.uk/monetary-policy/inflation)
+* [La stratégie de la Banque Centrale Européenne](https://www.ecb.europa.eu/mopo/strategy/html/index.fr.html)
+* [La stratégie de la Réserve Fédérale Américaine](https://www.federalreserve.gov/monetarypolicy/files/FOMC_LongerRunGoals.pdf)
+* [La stratégie de la Banque d'Angleterre](https://www.bankofengland.co.uk/monetary-policy/inflation)
 
 > Une cible de 2 %, ce n'est pas un hasard : c'est l'équilibre que les banques centrales ont choisi entre trop et pas assez.
 
