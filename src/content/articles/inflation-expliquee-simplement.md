@@ -9,7 +9,7 @@ format: "Les bases"
 keyStat: "2 %"
 keyStatCaption: "La cible d'inflation visée par la BCE et la plupart des grandes banques centrales — pas 0 %, et c'est volontaire."
 relatedSlugs: []
-draft: true
+draft: false
 ---
 
 "L'inflation, c'est quand les prix montent." C'est vrai, mais incomplet - et ça laisse une question sans réponse : pourquoi les banques centrales ne visent-elles pas une inflation à 0 %, qui semblerait le résultat idéal ?
